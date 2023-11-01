@@ -103,7 +103,7 @@ Rvmminb <- function(par, fn, gr = NULL, lower = NULL,
   reltest <- ctrl$reltest
   stopbadupdate <- ctrl$stopbadupdate
   fargs <- list(...)  # the ... arguments that are extra function / gradient data
-  smallstep <- reltest*.Machine$double.eps # 20230727 fix for neg trystep
+  smallstep <- reltest*.Machine$double.xmin # 20230727 fix for neg trystep
 #################################################################
   # check if there are bounds
   if (is.null(lower) || !any(is.finite(lower))) 
