@@ -190,9 +190,12 @@ Rvmminb <- function(par, fn, gr = NULL, lower = NULL,
           B <- diag(1, n, n)  # create unit matrix of order n
           if (trace > 1) cat("Reset Inv. Hessian approx at ilast = ", ilast, "\n")
       }
-      fmin <- f
+      # ROR: for the first iteration, no need to initialize fmin and par,
+      # already defined in lines 128 and 172. After, should only be saved if
+      # point is acceptable (lines 338 and 369).
+      # fmin <- f # ROR: here 'fmin' can be updated when point is not acceptable.
       if (trace > 0) cat(" ", ifn, " ", ig, " ", fmin, "\n")
-      par <- bvec  # save parameters
+      # par <- bvec  # ROR: here 'par' can be updated when point is not acceptable.
       if (!all(is.numeric(g))) {
           g <- rep(0, n)  # 110619
           cat("zeroing gradient because of failure\n")
