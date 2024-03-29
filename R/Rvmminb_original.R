@@ -82,6 +82,7 @@ Rvmminb.test <- function(par, fn, gr = NULL, lower = NULL,
   #
   #################################################################
   # control defaults
+  t0 = Sys.time()
   n <- as.integer(length(par))  # number of elements in par vector
   maxit <- 500 + 2L * n
   maxfeval <- 3000 + 10L * n
@@ -455,11 +456,12 @@ Rvmminb.test <- function(par, fn, gr = NULL, lower = NULL,
     }  # end main loop  (while keepgoing)
     if (maximize) fmin <- (-1) * fmin
     if (trace > 0) cat("Seem to be done Rvmminb\n")
+    deltat = Sys.time() - t0
     msg <- "Rvmminb appears to have converged"
     counts <- c(ifn, ig)
     names(counts) <- c("function", "gradient")
-    ans <- list(par, fmin, counts, convergence=conv, msg, bdmsk)
+    ans <- list(par, fmin, counts, convergence=conv, msg, bdmsk, deltat)
     names(ans) <- c("par", "value", "counts", "convergence", 
-        "message", "bdmsk")
+        "message", "bdmsk", "elapsed")
     ans    #return(ans)
 }  ## end of Rvmminb

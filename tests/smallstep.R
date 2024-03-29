@@ -28,8 +28,6 @@ run_model = function(par, forcing) {
   return(output)
 }
 
-control = list(maxit=20000, eps=sqrt(.Machine$double.eps))
-
 # objective function
 fn = calibration_objFn(model=run_model, setup=setup, observed=observed, forcing=forcing, aggregate=TRUE)
 gr = function(par) gradient(fn=fn, x=par, method="forward")
@@ -38,15 +36,57 @@ guess = unlist(ARPM$guess)
 lower = unlist(ARPM$lower)
 upper = unlist(ARPM$upper)
 
+# message printing
+msg = function(test, deltat=NULL) {
+  if(is.null(deltat)) deltat = test$elapsed
+  cat(sprintf("value=%0.3f | time=%s | counts=(%s)\n", 
+              test$value, format(deltat, units="seconds", digits=3), 
+              paste(test$counts, collapse=",")))
+  return(invisible())
+}
+
+maxit = 2000
+maxfeval = 20000 # There's a typo in the documentation, it's not 'maxfevals'.
+
+cat(sprintf("The minimum value of the function is %0.3f\n", ARPM$value))
+
+# smallstep tests ---------------------------------------------------------
+
 # original Rvmmin
-test0 = optimx::Rvmmin(par=guess, fn=fn, gr=gr, lower=lower, upper=upper, 
-               control=list(maxit=20000, eps=sqrt(.Machine$double.eps)))
+test0 = optimx::Rvmmin.test(par=guess, fn=fn, gr=gr, lower=lower, upper=upper, 
+               control=list(maxit=maxit, maxfeval=maxfeval))
+msg(test0)
+
+# smallstep = .Machine$double.xmin
+test1 = optimx::Rvmmin.test(par=guess, fn=fn, gr=gr, lower=lower, upper=upper, 
+                            control=list(maxit=maxit, maxfeval=maxfeval, 
+                                         smallstep=.Machine$double.xmin))
+msg(test1)
+
+# not saving unfeasible points
+test2 = optimx::Rvmmin.test(par=guess, fn=fn, gr=gr, lower=lower, upper=upper, 
+                            control=list(maxit=maxit, maxfeval=maxfeval, nosave=TRUE))
+msg(test2)
+
+# smallstep = .Machine$double.xmin, not saving unfeasible points
+test3 = optimx::Rvmmin.test(par=guess, fn=fn, gr=gr, lower=lower, upper=upper, 
+                            control=list(maxit=maxit, maxfeval=maxfeval, smallstep=.Machine$double.xmin,
+                                         nosave=TRUE))
+msg(test3)
 
 
-ori = Rvmmin_ori(par=guess, fn=fn, lower=lower, upper=upper, control=control)
-ori2 = Rvmmin_ori(par=guess, fn=fn, gr=gr, lower=lower, upper=upper, control=control)
-mod = Rvmmin(par=guess, fn=fn, lower=lower, upper=upper, control=control)
-mod2 = Rvmmin(par=guess, fn=fn, gr=gr, lower=lower, upper=upper, control=control)
-test = optim2(par=guess, fn=fn, lower=lower, upper=upper, control=control, method="Rvmmin")
+# Internal numerical gradient tests ---------------------------------------
+
+# here we use internal numerical gradient computation
+# original Rvmmin (with internal gradient)
+test0b = optimx::Rvmmin.test(par=guess, fn=fn, lower=lower, upper=upper, 
+                             control=list(maxit=maxit, maxfeval=maxfeval))
+msg(test0b)
+# smallstep = .Machine$double.xmin (with internal gradient)
+test1b = optimx::Rvmmin.test(par=guess, fn=fn, lower=lower, upper=upper, 
+                             control=list(maxit=maxit, maxfeval=maxfeval, 
+                                          smallstep=.Machine$double.xmin))
+msg(test1b)
+
 
 
