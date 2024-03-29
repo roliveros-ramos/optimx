@@ -46,6 +46,7 @@ export(
   "tn",
   "tnbc",
   "Rvmmin",
+  "Rvmmin.test",
   "Rvmminb",
   "Rvmminu",
   "scalechk",

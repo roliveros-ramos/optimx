@@ -1,4 +1,4 @@
-Rvmminb <- function(par, fn, gr = NULL, lower = NULL, 
+Rvmminb.test <- function(par, fn, gr = NULL, lower = NULL, 
   upper = NULL, bdmsk = NULL, control = list(), ...) {
   #
   #  Author:  John C Nash
@@ -87,7 +87,7 @@ Rvmminb <- function(par, fn, gr = NULL, lower = NULL,
   maxfeval <- 3000 + 10L * n
   ctrl <- list(maxit = maxit, maxfeval = maxfeval, maximize = FALSE, 
     trace = 0, eps = 1e-07, dowarn = TRUE, acctol = 0.0001, stepredn=0.2,
-    reltest=100.0, stopbadupdate = TRUE)
+    reltest=100.0, stopbadupdate = TRUE, nosave=FALSE, smallstep=.Machine$double.eps)
   namc <- names(control)
   if (!all(namc %in% names(ctrl))) 
      stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
@@ -103,7 +103,7 @@ Rvmminb <- function(par, fn, gr = NULL, lower = NULL,
   reltest <- ctrl$reltest
   stopbadupdate <- ctrl$stopbadupdate
   fargs <- list(...)  # the ... arguments that are extra function / gradient data
-  smallstep <- reltest*.Machine$double.xmin # 20230727 fix for neg trystep
+  smallstep <- reltest*ctrl$smallstep # 20230727 fix for neg trystep
 #################################################################
   # check if there are bounds
   if (is.null(lower) || !any(is.finite(lower))) 
@@ -192,10 +192,10 @@ Rvmminb <- function(par, fn, gr = NULL, lower = NULL,
       }
       # ROR: for the first iteration, no need to initialize fmin and par,
       # already defined in lines 128 and 172. After, should only be saved if
-      # point is acceptable (lines 337 and 368).
-      # fmin <- f # ROR: here 'fmin' can be updated when point is not acceptable.
+      # point is acceptable (lines 338 and 369).
+      if(!isTRUE(ctrl$nosave)) fmin <- f # ROR: here 'fmin' can be updated when point is not acceptable.
       if (trace > 0) cat(" ", ifn, " ", ig, " ", fmin, "\n")
-      # par <- bvec  # ROR: here 'par' can be updated when point is not acceptable.
+      if(!isTRUE(ctrl$nosave)) par <- bvec  # ROR: here 'par' can be updated when point is not acceptable.
       if (!all(is.numeric(g))) {
           g <- rep(0, n)  # 110619
           cat("zeroing gradient because of failure\n")
