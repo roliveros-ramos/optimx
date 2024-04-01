@@ -368,8 +368,7 @@ Rvmminb.test <- function(par, fn, gr = NULL, lower = NULL,
         }
         par <- bvec # save parameters since point acceptable
 ## ERROR!!        g[which(bdmsk <= 0)] <- 0  # adjust for active mask or constraint 
-        if (bounds) 
-        { ## Bounds and masks adjustment of gradient ##
+        if(bounds) { ## Bounds and masks adjustment of gradient ##
           ## first try with looping -- later try to vectorize
           if (trace > 2) {
              cat("bdmsk:")
@@ -461,7 +460,6 @@ Rvmminb.test <- function(par, fn, gr = NULL, lower = NULL,
     counts <- c(ifn, ig)
     names(counts) <- c("function", "gradient")
     ans <- list(par, fmin, counts, convergence=conv, msg, bdmsk, deltat)
-    names(ans) <- c("par", "value", "counts", "convergence", 
-        "message", "bdmsk", "elapsed")
+    names(ans) <- c("par", "value", "counts", "convergence", "message", "bdmsk", "elapsed")
     ans    #return(ans)
 }  ## end of Rvmminb
